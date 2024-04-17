@@ -25,22 +25,29 @@ TYPE_STATIC = 4
 
 
 if __name__ == '__main__':
-    fi, fo, cf = sys.argv[-2:]
+    if len(sys.argv) != 4 if not 'py' in sys.argv[0] else 5:
+        print("usage: elf2hxe <input> <output> <config>")
+        sys.exit(1)
+
+    fi, fo, cf = sys.argv[-3:]
 
     with open(fi, 'rb') as f:
         data = f.read()
 
     with open(cf, 'rt') as f:
         config = json.load(f)
+    
+    byteorder = config.get('byteorder', 'little')
 
     header = b'HXE\x7f'
     version = b'\x03'
-    abi = config.get('abi', 1).to_bytes(1, 'little')
-    arch = config.get('arch', 1).to_bytes(1, 'little')
-    type = config.get('type', 1).to_bytes(1, 'little')
-    size = (36).to_bytes(4, 'little')
-    entry = fi[0x18:1]
-    checksum = ((entry + 1213744384) >> abi * 0x70 ^ 1163413631).to_bytes(8, 'little')
+    abi = config.get('abi', ABI_NONE).to_bytes(1, byteorder)
+    arch = config.get('arch', ARCH_NONE).to_bytes(1, byteorder)
+    type = config.get('type', TYPE_NONE).to_bytes(1, byteorder)
+    size = (36).to_bytes(8, 'little')
+    entry = data[0x18:][:8]
+    checksum = (((int.from_bytes(entry, 'little') + 1213744384) >>
+                int.from_bytes(abi) * 0x70 ^ 1163413631) & (2**63-1)).to_bytes(8, 'little')
     footer = b'EXH\x7f'
 
     hdr = header + version + abi + arch + type + size + entry + checksum + footer

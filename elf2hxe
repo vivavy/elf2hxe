@@ -1,0 +1,51 @@
+#!/bin/env python3
+
+import sys, json
+
+
+ABI_ERROR = 0
+ABI_NONE = 1
+ABI_HEXOS = 2
+ABI_LINUX = 3
+ABI_WINDOWS = 4
+
+ARCH_ERROR = 0
+ARCH_NONE = 1
+ARCH_X86 = 2
+ARCH_X86_64 = 3
+ARCH_ARM = 4
+ARCH_AARCH64 = 5
+ARCH_8086 = 6
+
+TYPE_ERROR = 0
+TYPE_NONE = 1
+TYPE_EXECUTABLE = 2
+TYPE_DYNAMIC = 3
+TYPE_STATIC = 4
+
+
+if __name__ == '__main__':
+    fi, fo, cf = sys.argv[-2:]
+
+    with open(fi, 'rb') as f:
+        data = f.read()
+
+    with open(cf, 'rt') as f:
+        config = json.load(f)
+
+    header = b'HXE\x7f'
+    version = b'\x03'
+    abi = config.get('abi', 1).to_bytes(1, 'little')
+    arch = config.get('arch', 1).to_bytes(1, 'little')
+    type = config.get('type', 1).to_bytes(1, 'little')
+    size = (36).to_bytes(4, 'little')
+    entry = fi[0x18:1]
+    checksum = ((entry + 1213744384) >> abi * 0x70 ^ 1163413631).to_bytes(8, 'little')
+    footer = b'EXH\x7f'
+
+    hdr = header + version + abi + arch + type + size + entry + checksum + footer
+
+    do = hdr + data[36:]
+
+    with open(fo, 'wb') as f:
+        f.write(do)

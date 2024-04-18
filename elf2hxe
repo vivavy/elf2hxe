@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     with open(cf, 'rt') as f:
         config = json.load(f)
-    
+
     byteorder = config.get('byteorder', 'little')
 
     header = b'HXE\x7f'
@@ -44,10 +44,10 @@ if __name__ == '__main__':
     abi = config.get('abi', ABI_NONE).to_bytes(1, byteorder)
     arch = config.get('arch', ARCH_NONE).to_bytes(1, byteorder)
     type = config.get('type', TYPE_NONE).to_bytes(1, byteorder)
-    size = (36).to_bytes(8, 'little')
+    size = (36).to_bytes(8, byteorder)
     entry = data[0x18:][:8]
-    checksum = (((int.from_bytes(entry, 'little') + 1213744384) >>
-                int.from_bytes(abi) * 0x70 ^ 1163413631) & (2**63-1)).to_bytes(8, 'little')
+    checksum = (((int.from_bytes(entry, byteorder) + 1213744384) >>
+                int.from_bytes(abi, byteorder) * 0x70 ^ 1163413631) & (2**63-1)).to_bytes(8, byteorder)
     footer = b'EXH\x7f'
 
     hdr = header + version + abi + arch + type + size + entry + checksum + footer

@@ -37,15 +37,11 @@ if __name__ == '__main__':
     with open(sys.argv[1], 'rb') as f:
         data = f.read()
     
-    print("DEBUG: abi: %02x" % data[1])
-    print("DEBUG: arch: %02x" % data[2])
-    print("DEBUG: type: %02x" % data[3])
-    
     print("HXE version: 0x%02x" % data[4])
     print("ABI: %s" % abis[data[5]])
     print("Architecture: %s" % archs[data[6]])
     print("Type: %s" % types[data[7]])
-    print("Header size: %d" % int.from_bytes(data[8:12], 'little'))
+    print("File size: %d" % int.from_bytes(data[8:12], 'little'))
     print("Entry: %s" % hex(int.from_bytes(data[12:20], 'little')))
     print("Checksum: %s" % hex(int.from_bytes(data[20:28], 'little')))
     print("Footer: %s" % hex(int.from_bytes(data[28:36], 'little')))

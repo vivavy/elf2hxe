@@ -18,7 +18,14 @@ archs = [
     'x86_64',
     'arm',
     'aarch64',
-    '8086'
+    '8086',
+    'mips',
+    'ppc',
+    'sparc',
+    'm68k',
+    'mips64',
+    'ppc64',
+    'sparc64'
 ]
 
 types = [
